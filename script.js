@@ -11,8 +11,8 @@ const stages = [
     ['Preparing selected files for transfer', 'transfer', 'Preparing transfer', 'Packaging data', 'cinematic-package', 'orange'],
     ['Connecting to remote server', 'transfer', 'Connecting to server', 'Server connection pending', 'hum', 'red'],
     ['Sending passwords and personal files to server', 'transfer', 'Transferring data', 'Transfer in progress', 'cinematic-handshake', 'red'],
-    ['Finalizing data transfer', 'transfer', 'Finalizing transfer', 'Transfer completing', 'interface', 'red'],
-    ['Cleaning up session', 'initialize', 'Cleaning up', 'Completing the sequence', 'cinematic-cleanup', 'green']
+    ['Server received data', 'transfer', 'Server received data', 'Transfer complete', 'interface', 'red'],
+    ['Cleaning up', 'initialize', 'Cleaning up', 'Completing the sequence', 'cinematic-cleanup', 'green']
 ];
 
 const soundtrack = new Audio();
@@ -24,8 +24,8 @@ let audioFinished = false;
 
 function retrySound() {
     if (audioFinished) return;
-    if (ambience.paused) ambience.play().catch(() => {});
-    if (soundtrack.paused && !soundtrack.ended) soundtrack.play().catch(() => {});
+    if (ambience.paused) ambience.play().catch(() => { });
+    if (soundtrack.paused && !soundtrack.ended) soundtrack.play().catch(() => { });
 }
 
 const recovery = new AbortController();
@@ -81,7 +81,7 @@ async function runSequence() {
         container.scrollTop = container.scrollHeight;
         const isCleanup = index === stages.length - 1;
         soundtrack.loop = isCleanup;
-        soundtrack.play().catch(() => {});
+        soundtrack.play().catch(() => { });
         await wait(isCleanup ? 2000 : (Math.floor(Math.random() * 4) + 2) * 1000);
         dots.classList.add('complete');
         line.classList.remove('is-running');
@@ -115,5 +115,5 @@ async function runSequence() {
     document.body.classList.add('is-blacked-out');
 }
 
-ambience.play().catch(() => {});
+ambience.play().catch(() => { });
 runSequence();
