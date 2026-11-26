@@ -17,14 +17,21 @@ const stages = [
 
 const soundtrack = new Audio();
 soundtrack.volume = 0.6;
-const ambience = new Audio('sounds/suspense-ambience.mp3');
-ambience.loop = true;
+const ambience = new Audio('sounds/night-horror-suspense.mp3');
 ambience.volume = 0.45;
+const roomTone = new Audio('sounds/dark-cinematic-room-tone.mp3');
+roomTone.volume = 0.22;
+const glitchBass = new Audio('sounds/glitch-bass-suspense.mp3');
+glitchBass.volume = 0.18;
+const backgroundTracks = [ambience, roomTone, glitchBass];
+for (const track of backgroundTracks) track.loop = true;
 let audioFinished = false;
 
 function retrySound() {
     if (audioFinished) return;
-    if (ambience.paused) ambience.play().catch(() => {});
+    for (const track of backgroundTracks) {
+        if (track.paused) track.play().catch(() => {});
+    }
     if (soundtrack.paused && !soundtrack.ended) soundtrack.play().catch(() => {});
 }
 
@@ -50,28 +57,15 @@ function recoverFromPause() {
     setTimeout(resumeIfVisible, 150);
 }
 
-ambience.addEventListener('pause', recoverFromPause, recoveryOptions);
 soundtrack.addEventListener('pause', recoverFromPause, recoveryOptions);
 
 // Start checking only once playback has succeeded at least once.
 let recoveryTimer;
-ambience.addEventListener('playing', () => {
-    recoveryTimer = setInterval(resumeIfVisible, 2000);
-}, { once: true, signal: recovery.signal });
-
-function waitForCleanupSound() {
-    return new Promise(resolve => {
-        function finish(played) {
-            soundtrack.removeEventListener('ended', ended);
-            soundtrack.removeEventListener('error', failed);
-            resolve(played);
-        }
-        const ended = () => finish(true);
-        const failed = () => finish(false);
-        soundtrack.addEventListener('ended', ended);
-        soundtrack.addEventListener('error', failed);
-        soundtrack.play().catch(failed);
-    });
+for (const track of backgroundTracks) {
+    track.addEventListener('pause', recoverFromPause, recoveryOptions);
+    track.addEventListener('playing', () => {
+        recoveryTimer ??= setInterval(resumeIfVisible, 2000);
+    }, { once: true, signal: recovery.signal });
 }
 
 async function runSequence() {
@@ -94,13 +88,10 @@ async function runSequence() {
         line.append(text, dots);
         container.appendChild(line);
         container.scrollTop = container.scrollHeight;
-        if (index === stages.length - 1) {
-            const cleanupSoundEnded = await waitForCleanupSound();
-            if (!cleanupSoundEnded) await wait(2000);
-        } else {
-            soundtrack.play().catch(() => {});
-            await wait((Math.floor(Math.random() * 4) + 2) * 1000);
-        }
+        const isCleanup = index === stages.length - 1;
+        soundtrack.loop = isCleanup;
+        soundtrack.play().catch(() => {});
+        await wait(isCleanup ? 2000 : (Math.floor(Math.random() * 4) + 2) * 1000);
         dots.classList.add('complete');
         line.classList.remove('is-running');
         if (message === 'Connecting to remote server') {
@@ -113,10 +104,6 @@ async function runSequence() {
         document.getElementById('progress-value').textContent = `${progress}%`;
         document.getElementById('progress-bar').style.width = `${progress}%`;
     }
-    audioFinished = true;
-    recovery.abort();
-    clearInterval(recoveryTimer);
-    soundtrack.pause();
     scene.dataset.phase = 'inactive';
     delete scene.dataset.cue;
     scene.dataset.tone = 'green';
@@ -128,10 +115,14 @@ async function runSequence() {
     document.getElementById('channel-status').textContent = 'CHANNEL CLOSED';
     document.querySelector('.connection').classList.remove('connected');
     await wait(1000);
-    ambience.pause();
+    audioFinished = true;
+    recovery.abort();
+    clearInterval(recoveryTimer);
+    soundtrack.pause();
+    for (const track of backgroundTracks) track.pause();
     document.querySelector('.screen').inert = true;
     document.body.classList.add('is-blacked-out');
 }
 
-ambience.play().catch(() => {});
+for (const track of backgroundTracks) track.play().catch(() => {});
 runSequence();
