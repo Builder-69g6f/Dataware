@@ -19,19 +19,12 @@ const soundtrack = new Audio();
 soundtrack.volume = 0.6;
 const ambience = new Audio('sounds/night-horror-suspense.mp3');
 ambience.volume = 0.45;
-const roomTone = new Audio('sounds/dark-cinematic-room-tone.mp3');
-roomTone.volume = 0.22;
-const glitchBass = new Audio('sounds/glitch-bass-suspense.mp3');
-glitchBass.volume = 0.18;
-const backgroundTracks = [ambience, roomTone, glitchBass];
-for (const track of backgroundTracks) track.loop = true;
+ambience.loop = true;
 let audioFinished = false;
 
 function retrySound() {
     if (audioFinished) return;
-    for (const track of backgroundTracks) {
-        if (track.paused) track.play().catch(() => {});
-    }
+    if (ambience.paused) ambience.play().catch(() => {});
     if (soundtrack.paused && !soundtrack.ended) soundtrack.play().catch(() => {});
 }
 
@@ -61,12 +54,10 @@ soundtrack.addEventListener('pause', recoverFromPause, recoveryOptions);
 
 // Start checking only once playback has succeeded at least once.
 let recoveryTimer;
-for (const track of backgroundTracks) {
-    track.addEventListener('pause', recoverFromPause, recoveryOptions);
-    track.addEventListener('playing', () => {
-        recoveryTimer ??= setInterval(resumeIfVisible, 2000);
-    }, { once: true, signal: recovery.signal });
-}
+ambience.addEventListener('pause', recoverFromPause, recoveryOptions);
+ambience.addEventListener('playing', () => {
+    recoveryTimer = setInterval(resumeIfVisible, 2000);
+}, { once: true, signal: recovery.signal });
 
 async function runSequence() {
     for (const [index, [message, phase, title, detail, cue, tone = 'blue']] of stages.entries()) {
@@ -119,10 +110,10 @@ async function runSequence() {
     recovery.abort();
     clearInterval(recoveryTimer);
     soundtrack.pause();
-    for (const track of backgroundTracks) track.pause();
+    ambience.pause();
     document.querySelector('.screen').inert = true;
     document.body.classList.add('is-blacked-out');
 }
 
-for (const track of backgroundTracks) track.play().catch(() => {});
+ambience.play().catch(() => {});
 runSequence();

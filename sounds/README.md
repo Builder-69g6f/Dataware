@@ -15,8 +15,4 @@ Cinematic sequence cues from [Mixkit](https://mixkit.co/license/):
 - `cinematic-handshake.mp3`: [Broken radio frequency signal](https://mixkit.co/free-sound-effects/glitch/) ([audio](https://assets.mixkit.co/active_storage/sfx/2563/2563-preview.mp3))
 - `cinematic-cleanup.mp3`: [Tape rewind cinematic transition](https://mixkit.co/free-sound-effects/cinematic/) ([audio](https://assets.mixkit.co/active_storage/sfx/1088/1088-preview.mp3))
 
-Background layer: [Glitchy Sci Fi bass suspense](https://mixkit.co/free-sound-effects/suspense-music/) ([audio](https://assets.mixkit.co/active_storage/sfx/686/686-preview.mp3)).
-
-Background layer: [Dark cinematic room tone](https://mixkit.co/free-sound-effects/suspense-music/) ([audio](https://assets.mixkit.co/active_storage/sfx/3081/3081-preview.mp3)).
-
-Background layer: `night-horror-suspense.mp3`, copied from the user-provided `uttamkumar_r-night-horror-suspense-thriller-189372.mp3`.
+Background loop: `night-horror-suspense.mp3`, copied from the user-provided `uttamkumar_r-night-horror-suspense-thriller-189372.mp3`.
